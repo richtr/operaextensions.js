@@ -27,7 +27,7 @@ if (isOEX) {
 
     var hasFired_DOMContentLoaded = false,
         hasFired_Load = false;
-    
+
     // If we already missed DOMContentLoaded or Load events firing, record that now...
     if(global.document.readyState === "interactive") {
       hasFired_DOMContentLoaded = true;
@@ -46,18 +46,7 @@ if (isOEX) {
       hasFired_Load = true;
       global.removeEventListener("load", handle_Load, true);
     }, true);
-    
-    // Catch and fire readystatechange events when they happen
-    global.document.addEventListener("readystatechange", function(event) {
-      event.stopImmediatePropagation();
-      event.stopPropagation();
-      if( global.document.readyState !== 'interactive' && global.document.readyState !== 'complete' ) {
-        fireEvent('readystatechange', global.document);
-      } else {
-        global.document.readyState = 'loading';
-      }
-    }, true);
-    
+
     // Take over handling of document.readyState via our own load bootstrap code below
     var _readyState = (hasFired_DOMContentLoaded || hasFired_Load) ? global.document.readyState : "loading";
     global.document.__defineSetter__('readyState', function(val) { _readyState = val; });
@@ -70,15 +59,15 @@ if (isOEX) {
       // Replace addEventListener for given target
       target.addEventListener = function(name, fn, usecapture) {
         name = name + ""; // force event name to type string
-        
+
         if (name.toLowerCase() === _name.toLowerCase()) {
           if (fn === undefined || fn === null ||
                 Object.prototype.toString.call(fn) !== "[object Function]") {
             return;
           }
 
-          if ((name.toLowerCase() === 'domcontentloaded' && !hasFired_DOMContentLoaded) || 
-                (name.toLowerCase() === 'load' && !hasFired_Load) || 
+          if ((name.toLowerCase() === 'domcontentloaded' && !hasFired_DOMContentLoaded) ||
+                (name.toLowerCase() === 'load' && !hasFired_Load) ||
                     !isReady) {
             fns[_name.toLowerCase()].push(fn);
           } else {
@@ -105,11 +94,11 @@ if (isOEX) {
 
     function fireEvent(name, target, props) {
       var evtName = name.toLowerCase();
-      
+
       // Roll a standard object as the Event since we really need
-      // to set the target + other unsettable properties on the 
+      // to set the target + other unsettable properties on the
       // isReady events
-      
+
       var evt = props || {};
 
       evt.type = name;
@@ -172,7 +161,7 @@ if (isOEX) {
               var currentTime = new Date().getTime();
 
               if (hasFired_Load || currentTime >= loadTimeoutOverride) {
-                
+
                 global.document.readyState = 'complete';
                 fireEvent('readystatechange', global.document);
 
